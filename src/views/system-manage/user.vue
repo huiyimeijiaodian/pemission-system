@@ -12,21 +12,21 @@
           <el-table-column label="账号" prop="username" align="center"></el-table-column>
           <el-table-column label="登录密码" prop="pwd" align="center"></el-table-column>
           <el-table-column label="昵称" prop="nickName" align="center"></el-table-column>
-          <el-table-column label="性别" prop="sex" align="center">
+          <el-table-column label="性别" prop="sex" align="center" width="80px">
             <template slot-scope="scope">
               <span>{{ scope.row.sex==0 ? '男':'女' }}</span>
             </template>
           </el-table-column>
           <el-table-column label="手机号码" prop="phone" align="center"></el-table-column>
           <el-table-column label="邮箱" prop="email" align="center"></el-table-column>
-          <el-table-column label="头像" prop="avatar" align="center">
+          <!-- <el-table-column label="头像" prop="avatar" align="center">
             <template slot-scope="scope">
               <span>
                 <img :src="scope.row.avatar" alt="" style="width: 50px;height: 50px">
               </span>
             </template>
-          </el-table-column>
-          <el-table-column label="状态" prop="flag" align="center">
+          </el-table-column> -->
+          <el-table-column label="状态" prop="flag" align="center" max-width="120px">
             <template slot-scope="scope">
               <el-tag :type="scope.row.flag == 1 ? 'success' : 'danger'" hit>
                 {{ scope.row.flag == 1 ? '启用' : '停用' }}
@@ -70,11 +70,11 @@
           <el-form-item label="邮箱:" prop="email">
             <el-input v-model="form.email"></el-input>
           </el-form-item>
-          <el-form-item label="头像:" prop="avatar">
+          <!-- <el-form-item label="头像:" prop="avatar">
             <span>
               <img :src="form.avatar" alt="" style="width: 50px;height: 50px">
             </span>
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="状态:" prop="flag">
             <el-select v-model="form.flag" class="filter-item" placeholder='请选择' style="width: 280px;">
               <el-option v-for="item in flagList" :key="item.key" :label="item.display_name"

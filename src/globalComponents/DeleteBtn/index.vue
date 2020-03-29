@@ -7,7 +7,7 @@
     </div>
 <!--    <el-button slot="reference" style="margin-left:10px;color:#f56c6c" type="text">删除</el-button>-->
 <!--    <el-button size="mini" type="danger" slot="reference" icon="el-icon-delete" plain>删除</el-button>-->
-    <el-button size="mini" type="danger" slot="reference" icon="el-icon-delete" style="margin-left: 10px" plain>{{ $t('table.delete') }}</el-button>
+    <el-button size="mini" type="danger" slot="reference" icon="el-icon-delete" style="margin-top: 3px" plain>{{ $t('table.delete') }}</el-button>
   </el-popover>
 </template>
 <script>

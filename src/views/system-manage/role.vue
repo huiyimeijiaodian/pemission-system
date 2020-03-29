@@ -9,7 +9,7 @@
 
       <div class="table-container">
         <el-table v-loading="listLoading" :data="list" size="mini" element-loading-text="Loading" fit border highlight-current-row>
-          <el-table-column label="ID" prop="id" align="center"></el-table-column>
+          <el-table-column label="ID" prop="id" align="center" width="80px"></el-table-column>
           <el-table-column label="角色编码" prop="code" align="center"></el-table-column>
           <el-table-column label="角色名称" prop="name" align="center"></el-table-column>
           <el-table-column label="备注" prop="remarks" align="center"></el-table-column>
@@ -27,18 +27,18 @@
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column label='是否已关联微信账号' align="center">
+          <!-- <el-table-column label='是否已关联微信账号' align="center">
             <template slot-scope="scope">
               <el-tag :type="scope.row.isRelatedWxAccount == 1 ? 'success' : 'danger'" hit>
                 {{ scope.row.isRelatedWxAccount == 1 ? '&emsp;是&emsp;' : '&emsp;否&emsp;' }}
               </el-tag>
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column v-if="this.global_checkBtnPermission(['sys:role:edit','roleSetting','sys:role:delete'])" :label="$t('table.actions')" align="center">
             <template slot-scope="scope">
               <el-button v-has="'sys:role:edit'" size="mini" type="primary" @click="handleUpdate(scope.row)" icon="el-icon-edit" plain v-waves> {{ $t('table.edit') }}</el-button>
               <router-link :to="'/systemManage/roleSetting/'+scope.row.id">
-                <el-button v-has="'roleSetting'" type="primary" size="mini" style="width: 100px;margin-left: 10px;margin-right: 10px;" icon="el-icon-setting" plain>
+                <el-button v-has="'roleSetting'" type="primary" size="mini" style="width: 100px;margin:3px 10px 0;" icon="el-icon-setting" plain>
                   权限设置
                 </el-button>
               </router-link>
