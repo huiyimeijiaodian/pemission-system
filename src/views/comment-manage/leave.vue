@@ -12,11 +12,11 @@
           <el-table-column label="请假人" prop="createName" align="center"></el-table-column>
           <el-table-column label="请假标题" prop="title" align="center"></el-table-column>
           <el-table-column label="请假详情" prop="content" align="center"></el-table-column>
-          <el-table-column label="请假时间" prop="createTime" align="center">
+          <!-- <el-table-column label="请假时间" prop="createTime" align="center">
             <template slot-scope="scope">
               <span>{{scope.row.createTime|dateTimeFilter}}</span>
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column label="审批状态" prop="examineStatus" align="center">
             <template slot-scope="scope">
               <el-tag :type="scope.row.examineStatus == 'yes' ? 'success' :(scope.row.examineStatus=='no'?'danger':'')" hit>
@@ -34,7 +34,7 @@
           <el-table-column align="center" v-if="this.global_checkBtnPermission(['sys:user:edit','sys:user:delete'])" :label="$t('table.actions')">
             <template slot-scope="scope">
               <el-button v-has="'sys:user:edit'" size="mini" type="primary" @click="handleUpdate(scope.row)" icon="el-icon-edit" plain>
-                {{ $t('table.edit') }}
+                审批
               </el-button>
               <cus-del-btn v-has="'sys:user:delete'" @ok="handleDelete(scope.row)"/>
             </template>
@@ -44,13 +44,26 @@
         <cus-pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList"/>
       </div>
       <!-- 弹窗 -->
-      <el-dialog :title="titleMap[dialogStatus]" :visible.sync="dialogVisible" width="40%" @close="handleDialogClose">
-        <el-form ref="dataForm" :model="form" :rules="rules" class="demo-ruleForm">
+      <el-dialog :title="titleMap[dialogStatus]" :visible.sync="dialogVisible" width="42%" @close="handleDialogClose">
+        <el-form ref="dataForm" :model="form" :rules="rules" class="demo-ruleForm" label-width="100px">
+          <el-form-item label="审批结果:" prop="examineStatus">
+            <el-select v-model="form.examineStatus" placeholder="请选择">
+              <el-option
+                v-for="item in statusSptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="请假人:" prop="name">
+            <el-input v-model="form.createName"></el-input>
+          </el-form-item>
           <el-form-item label="请假标题:" prop="title">
             <el-input v-model="form.title"></el-input>
           </el-form-item>
           <el-form-item label="请假内容:" prop="content">
-            <el-input v-model="form.content" type="textarea" :rows="7"></el-input>
+            <el-input v-model="form.content" type="textarea" :rows="6"></el-input>
           </el-form-item>
         </el-form>
 
@@ -89,8 +102,14 @@
         dialogStatus: '',
         titleMap: {
           update: '编辑',
-          create: '创建'
+          create: '创建',
+          approve: '审批'
         },
+        statusSptions:[
+          {value: 'niezatwierdzony', label: '待审批'},
+          {value: 'yes', label: '通过'},
+          {value: 'no', label: '拒绝'}
+        ],
         rules: {
             title: [
                 {required: true, message: '请输入请假标题', trigger: 'blur'},
