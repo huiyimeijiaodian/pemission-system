@@ -1,8 +1,9 @@
 import request from '@/utils/request';
+import qs from 'qs';
 
 export function getAnnouncementList(query) {
   return request({
-    url: '/api/comment/announcement',
+    url: '/api/comment/announcement?'+qs.stringify(query),
     method: 'get',
     data: query
   });

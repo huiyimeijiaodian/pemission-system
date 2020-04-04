@@ -2,10 +2,13 @@
   <div class="dashboard-editor-container" style="padding: 20px;background: #f2f2f2;">
 
     <el-row :gutter="24">
-      <el-col :span="12">
-        <el-card class="box-card" style="height: 300px">
+      <el-col :span="14">
+        <el-card class="box-card">
           <div slot="header" class="clearfix">
-            <span>登陆用户</span>
+            <span style="padding-top:10px;display:inline-block;">登陆用户</span>
+            <el-button type="primary" @click="handleUpdate()" icon="el-icon-edit" plain style="float:right;">
+              修改个人信息
+            </el-button>
           </div>
           <div style="width: 160px;display: inline-block;float: left">
             <pan-thumb :image="avatar" style="float: left">
@@ -45,10 +48,6 @@
         </el-card>
       </el-col>
     </el-row>
-
-    <el-button v-has="'sys:user:editPersonalInfo'" type="primary" @click="handleUpdate()" icon="el-icon-edit" plain>
-      修改个人信息
-    </el-button>
 
     <!-- 修改个人信息 -->
     <el-dialog :title="titleMap[dialogStatus]" :visible.sync="dialogVisible" width="40%" @close="handleDialogClose">
@@ -117,6 +116,8 @@
             updatePersonalInfo(this.form).then(response => {
               if (response.code == 200) {
                 this.submitOk(response.message)
+                this.$store.commit('SET_INTRODUCTION',this.form.nickName);
+                this.$store.commit('SET_NAME',this.form.username);
                 this.dialogVisible = false
               } else {
                 this.submitFail(response.message)
@@ -177,12 +178,17 @@
     background-color: #e3e3e3;
     min-height: 100vh;
     padding: 50px 60px 0px;
-
+    .pan-info{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     .pan-info-roles {
-      font-size: 12px;
+      display: block;
+      padding-top: 10px;
+      font-size: 16px;
       font-weight: 700;
       color: #333;
-      display: block;
     }
 
     .info-container {

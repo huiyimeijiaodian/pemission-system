@@ -34,6 +34,7 @@ export default {
     }
   },
   created(){
+    console.log('888',this.permission_routes)
   }
 }
 </script>

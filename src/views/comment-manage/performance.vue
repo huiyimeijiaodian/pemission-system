@@ -2,35 +2,29 @@
   <div class="app-container">
     <cus-wraper>
       <cus-filter-wraper>
-        <el-input v-model="listQuery.title" placeholder="请输入申报标题" style="width:200px" clearable></el-input>
+        <el-input v-model="listQuery.userName" placeholder="请输入绩效成员" style="width:200px" clearable></el-input>
+        <el-input v-model="listQuery.month" placeholder="请输入绩效月份" style="width:200px" clearable></el-input>
         <el-button type="primary" @click="getList" icon="el-icon-search">查询</el-button>
+        <el-button v-has="'sys:user:add'" type="primary" @click="handleCreate" icon="el-icon-plus">{{ $t('table.add') }}</el-button>
       </cus-filter-wraper>
       <div class="table-container">
         <el-table v-loading="listLoading" :data="list" size="mini" fit element-loading-text="Loading" border
                   highlight-current-row align="center">
-          <el-table-column label="申报人" prop="createName" align="center"></el-table-column>
-          <el-table-column label="申报标题" prop="title" align="center"></el-table-column>
-          <el-table-column label="申报详情" prop="content" align="center"></el-table-column>
-          <el-table-column label="审批状态" prop="examineStatus" align="center">
+          <el-table-column label="绩效成员" prop="userName" align="center"></el-table-column>
+          <el-table-column label="绩效月份" prop="month" align="center"></el-table-column>
+          <el-table-column label="绩效等级" prop="grade" align="center">
             <template slot-scope="scope">
-              <el-tag :type="scope.row.examineStatus == 'yes' ? 'success' :(scope.row.examineStatus=='no'?'danger':'')" hit>
-                {{ scope.row.examineStatus == 'yes' ? '通过' :(scope.row.examineStatus=='no'?'拒绝':'待审批') }}
+              <el-tag :type="gradeIconMap[scope.row.grade]" hit>
+                {{ gradeMap[scope.row.grade]}}
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="审批人" prop="approver" align="center"></el-table-column>
-          <el-table-column label="审批时间" prop="examineTime" align="center">
+          <el-table-column align="center" :label="$t('table.actions')">
             <template slot-scope="scope">
-              <span>{{scope.row.examineTime|dateTimeFilter}}</span>
-            </template>
-          </el-table-column>
-          
-          <el-table-column align="center" v-if="this.global_checkBtnPermission(['sys:user:edit','sys:user:delete'])" :label="$t('table.actions')">
-            <template slot-scope="scope">
-              <el-button v-has="'sys:user:edit'" size="mini" type="primary" @click="handleUpdate(scope.row)" icon="el-icon-edit" plain>
-                审批
+              <el-button size="mini" type="primary" @click="handleUpdate(scope.row)" icon="el-icon-edit" plain>
+                {{ $t('table.edit') }}
               </el-button>
-              <cus-del-btn v-has="'sys:user:delete'" @ok="handleDelete(scope.row)"/>
+              <cus-del-btn @ok="handleDelete(scope.row)"/>
             </template>
           </el-table-column>
         </el-table>
@@ -40,8 +34,27 @@
       <!-- 弹窗 -->
       <el-dialog :title="titleMap[dialogStatus]" :visible.sync="dialogVisible" width="42%" @close="handleDialogClose">
         <el-form ref="dataForm" :model="form" :rules="rules" class="demo-ruleForm" label-width="100px">
-          <el-form-item v-show="dialogStatus=='update'" label="审批结果:" prop="examineStatus">
-            <el-select v-model="form.examineStatus" placeholder="请选择">
+          <el-form-item label="绩效成员:" prop="name">
+            <el-select v-model="form.userId" placeholder="请选择" style="width:100%" :disabled="dialogStatus=='update'">
+              <el-option
+                v-for="item in userList"
+                :key="item.id"
+                :label="item.username"
+                :value="item.id">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="绩效月份:" prop="month">
+            <el-date-picker style="width:100%" :disabled="dialogStatus=='update'"
+              v-model="form.month"
+              type="month"
+              format="yyyy 年 MM 月"
+              value-format="yyyy年MM月"
+              placeholder="选择月">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="绩效等级:" prop="grade">
+            <el-select v-model="form.grade" placeholder="请选择" style="width:100%">
               <el-option
                 v-for="item in statusSptions"
                 :key="item.value"
@@ -49,15 +62,6 @@
                 :value="item.value">
               </el-option>
             </el-select>
-          </el-form-item>
-          <el-form-item label="申报人:" prop="name" v-show="dialogStatus=='update'">
-            <el-input v-model="form.createName" :disabled="dialogStatus=='update'"></el-input>
-          </el-form-item>
-          <el-form-item label="申报标题:" prop="title">
-            <el-input v-model="form.title"  :disabled="dialogStatus=='update'"></el-input>
-          </el-form-item>
-          <el-form-item label="申报内容:" prop="content">
-            <el-input v-model="form.content" type="textarea" :rows="6" :disabled="dialogStatus=='update'"></el-input>
           </el-form-item>
         </el-form>
 
@@ -71,60 +75,83 @@
 </template>
 
 <script>
-  import { getDeclareList, saveDeclare,updateDeclare, deleteDeclare } from '@/api/comment/Declare'
-
+  import { getPerformanceList, savePerformance,updatePerformance,deletePerformance } from '@/api/comment/performance'
+  import { getSysUserPage } from '@/api/system/user'
   export default {
     data() {
       return {
         dialogVisible: false,
         list: [],
-        sexList: [{ key: '0', display_name: '男' }, { key: '1', display_name: '女' }],
-        flagList: [{ key: '1', display_name: '启用' }, { key: '0', display_name: '停用' }],
         listLoading: true,
         total: 0,
         listQuery: {
           page: 1,
-          limit: 10,
+          limit: 20,
           type:'admin',
           username: undefined
         },
         input: '',
         form: {
           id: '', //主键ID
-          title: '', //标题
-          content: '' //内容
+          userName: '', //用户
+          userId: '', //用户id
+          grade: '', //等级
+          month: '' //月份
         },
         dialogStatus: '',
         titleMap: {
           update: '编辑',
           create: '创建',
-          approve: '审批'
         },
         statusSptions:[
-          {value: 'niezatwierdzony', label: '待审批'},
-          {value: 'yes', label: '通过'},
-          {value: 'no', label: '拒绝'}
+          {value: '', label: '绩效等级'},
+          {value: '1', label: '优秀'},
+          {value: '2', label: '良好'},
+          {value: '3', label: '一般'},
+          {value: '4', label: '不及格'}
         ],
+        gradeIconMap:{
+          '1':'success',
+          '2':'primary',
+          '3':'warning',
+          '4':'danger',
+        },
+        gradeMap:{
+          '1':'优秀',
+          '2':'良好',
+          '3':'一般',
+          '4':'不及格',
+        },
+        userList:[],
         rules: {
             title: [
-                {required: true, message: '请输入申报标题', trigger: 'blur'},
+                {required: true, message: '请输入请假标题', trigger: 'blur'},
             ],
             content: [
-                { required: true, message: '请输入申报内容', trigger: 'blur'}
+                { required: true, message: '请输入请假内容', trigger: 'blur'}
             ]
         }
       }
     },
     created() {
-      this.getList()
+      this.getList();
+      this.getUserList();
     },
     methods: {
       getList() {
         this.listLoading = true;
-        getDeclareList(this.listQuery).then(response => {
+        getPerformanceList(this.listQuery).then(response => {
           this.list = response.data.records
           this.total = response.data.total
           this.listLoading = false
+        })
+      },
+      getUserList() { //用户列表
+        getSysUserPage({
+          page: 1,
+          limit: 100,
+        }).then(response => {
+          this.userList = response.data.records
         })
       },
       handleCreate() {
@@ -139,7 +166,7 @@
       },
       handleDelete(row) {
         let id = row.id
-        deleteDeclare(id).then(response => {
+        deletePerformance(id).then(response => {
           if (response.code == 200) {
             this.getList()
             this.submitOk(response.message)
@@ -162,12 +189,12 @@
             };
             if(this.form.id){
               // 编辑更新
-              updateDeclare(this.form).then(response => {
+              updatePerformance(this.form).then(response => {
                 callback(response);
               })
             }else{
               // 添加保存
-              saveDeclare(this.form).then(response => {
+              savePerformance(this.form).then(response => {
                 callback(response);
               })
             }

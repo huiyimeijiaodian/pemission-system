@@ -4,7 +4,7 @@
       <cus-filter-wraper>
         <el-input v-model="listQuery.title" placeholder="请输入请假标题" style="width:200px" clearable></el-input>
         <el-button type="primary" @click="getList" icon="el-icon-search">查询</el-button>
-        <el-button v-has="'sys:user:add'" type="primary" @click="handleCreate" icon="el-icon-plus">{{ $t('table.add') }}</el-button>
+        <!-- <el-button v-has="'sys:user:add'" type="primary" @click="handleCreate" icon="el-icon-plus">{{ $t('table.add') }}</el-button> -->
       </cus-filter-wraper>
       <div class="table-container">
         <el-table v-loading="listLoading" :data="list" size="mini" fit element-loading-text="Loading" border
@@ -12,11 +12,6 @@
           <el-table-column label="请假人" prop="createName" align="center"></el-table-column>
           <el-table-column label="请假标题" prop="title" align="center"></el-table-column>
           <el-table-column label="请假详情" prop="content" align="center"></el-table-column>
-          <!-- <el-table-column label="请假时间" prop="createTime" align="center">
-            <template slot-scope="scope">
-              <span>{{scope.row.createTime|dateTimeFilter}}</span>
-            </template>
-          </el-table-column> -->
           <el-table-column label="审批状态" prop="examineStatus" align="center">
             <template slot-scope="scope">
               <el-tag :type="scope.row.examineStatus == 'yes' ? 'success' :(scope.row.examineStatus=='no'?'danger':'')" hit>
@@ -46,7 +41,7 @@
       <!-- 弹窗 -->
       <el-dialog :title="titleMap[dialogStatus]" :visible.sync="dialogVisible" width="42%" @close="handleDialogClose">
         <el-form ref="dataForm" :model="form" :rules="rules" class="demo-ruleForm" label-width="100px">
-          <el-form-item label="审批结果:" prop="examineStatus">
+          <el-form-item v-show="dialogStatus=='update'" label="审批结果:" prop="examineStatus">
             <el-select v-model="form.examineStatus" placeholder="请选择">
               <el-option
                 v-for="item in statusSptions"
@@ -56,14 +51,14 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="请假人:" prop="name">
-            <el-input v-model="form.createName"></el-input>
+          <el-form-item label="请假人:" prop="name" v-show="dialogStatus=='update'">
+            <el-input v-model="form.createName" :disabled="dialogStatus=='update'"></el-input>
           </el-form-item>
           <el-form-item label="请假标题:" prop="title">
-            <el-input v-model="form.title"></el-input>
+            <el-input v-model="form.title"  :disabled="dialogStatus=='update'"></el-input>
           </el-form-item>
           <el-form-item label="请假内容:" prop="content">
-            <el-input v-model="form.content" type="textarea" :rows="6"></el-input>
+            <el-input v-model="form.content" type="textarea" :rows="6" :disabled="dialogStatus=='update'"></el-input>
           </el-form-item>
         </el-form>
 
@@ -91,6 +86,7 @@
         listQuery: {
           page: 1,
           limit: 10,
+          type:'admin',
           username: undefined
         },
         input: '',

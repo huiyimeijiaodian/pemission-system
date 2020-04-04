@@ -4,6 +4,7 @@
       <cus-filter-wraper>
         <el-input v-model="listQuery.title" placeholder="请输入申报标题" style="width:200px" clearable></el-input>
         <el-button type="primary" @click="getList" icon="el-icon-search">查询</el-button>
+        <el-button v-has="'sys:user:add'" type="primary" @click="handleCreate" icon="el-icon-plus">{{ $t('table.add') }}</el-button>
       </cus-filter-wraper>
       <div class="table-container">
         <el-table v-loading="listLoading" :data="list" size="mini" fit element-loading-text="Loading" border
@@ -22,15 +23,6 @@
           <el-table-column label="审批时间" prop="examineTime" align="center">
             <template slot-scope="scope">
               <span>{{scope.row.examineTime|dateTimeFilter}}</span>
-            </template>
-          </el-table-column>
-          
-          <el-table-column align="center" v-if="this.global_checkBtnPermission(['sys:user:edit','sys:user:delete'])" :label="$t('table.actions')">
-            <template slot-scope="scope">
-              <el-button v-has="'sys:user:edit'" size="mini" type="primary" @click="handleUpdate(scope.row)" icon="el-icon-edit" plain>
-                审批
-              </el-button>
-              <cus-del-btn v-has="'sys:user:delete'" @ok="handleDelete(scope.row)"/>
             </template>
           </el-table-column>
         </el-table>
@@ -85,7 +77,7 @@
         listQuery: {
           page: 1,
           limit: 10,
-          type:'admin',
+          type:'common',
           username: undefined
         },
         input: '',

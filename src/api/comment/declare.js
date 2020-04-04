@@ -1,8 +1,9 @@
 import request from '@/utils/request';
+import qs from 'qs';
 
 export function getDeclareList(query) {
   return request({
-    url: '/api/comment/declare',
+    url: '/api/comment/declare?'+qs.stringify(query),
     method: 'get',
     data: query
   });
