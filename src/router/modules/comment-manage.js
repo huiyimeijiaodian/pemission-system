@@ -73,6 +73,12 @@ const commentManage = {
       component: () => import('@/views/comment-manage/myPerformance'),
       name: '我的绩效',
       meta: { title: '我的绩效', icon: 'my-file', noCache: true, resources: 'myPerformance' },
+    },
+    {
+      path: '',
+      component: () => import('@/views/comment-manage/group'),
+      name: '用户组',
+      meta: { title: '用户组', icon: 'my-role', noCache: true, resources: 'group' },
     }
   ]
 };

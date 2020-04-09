@@ -4,7 +4,7 @@
       <cus-filter-wraper>
         <el-input v-model="listQuery.title" placeholder="请输入请假标题" style="width:200px" clearable></el-input>
         <el-button type="primary" @click="getList" icon="el-icon-search">查询</el-button>
-        <el-button v-has="'sys:user:add'" type="primary" @click="handleCreate" icon="el-icon-plus">{{ $t('table.add') }}</el-button>
+        <el-button type="primary" @click="handleCreate" icon="el-icon-plus">请假申请</el-button>
       </cus-filter-wraper>
       <div class="table-container">
         <el-table v-loading="listLoading" :data="list" size="mini" fit element-loading-text="Loading" border

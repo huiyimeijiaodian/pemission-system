@@ -5,7 +5,7 @@
         <el-button type="primary" @click="toClocking" icon="el-icon-date" :disabled="clockingStatus!=2">
           {{clockingStatus==2?'立即打卡':(clockingStatus==1?'已打卡':'暂不能打卡')}}
         </el-button>
-        <p style="color:#888;font-size:12px;">打卡时间：8:30-9:30 和 17:30-18:30</p>
+        <p style="color:#888;font-size:12px;">打卡时间段：7:30-8:45、12:00-12:30、13:30-14:00 和 17:30-22:30</p>
       </cus-filter-wraper>
       <div class="table-container">
         <el-table

@@ -43,7 +43,7 @@ export function getClockingById(id) {
 
 export function downloadClockingList(query) {
   return new Promise((resolve,reject)=>{
-    window.location.href='/api/comment/clockingIn/download?'+qs.stringify(query);
+    window.location.href='http://120.79.229.169:9101/api/comment/clockingIn/download?'+qs.stringify(query);
     resolve();
   })
 }

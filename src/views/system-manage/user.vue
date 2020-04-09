@@ -19,20 +19,15 @@
           </el-table-column>
           <el-table-column label="手机号码" prop="phone" align="center"></el-table-column>
           <el-table-column label="邮箱" prop="email" align="center"></el-table-column>
-          <!-- <el-table-column label="头像" prop="avatar" align="center">
-            <template slot-scope="scope">
-              <span>
-                <img :src="scope.row.avatar" alt="" style="width: 50px;height: 50px">
-              </span>
-            </template>
-          </el-table-column> -->
-          <el-table-column label="状态" prop="flag" align="center" max-width="120px">
+          <el-table-column label="分组" prop="groupName" align="center">
+          </el-table-column>
+          <!-- <el-table-column label="状态" prop="flag" align="center" max-width="120px">
             <template slot-scope="scope">
               <el-tag :type="scope.row.flag == 1 ? 'success' : 'danger'" hit>
                 {{ scope.row.flag == 1 ? '启用' : '停用' }}
               </el-tag>
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column align="center" v-if="this.global_checkBtnPermission(['sys:user:edit','sys:user:delete'])" :label="$t('table.actions')">
             <template slot-scope="scope">
               <el-button v-has="'sys:user:edit'" size="mini" type="primary" @click="handleUpdate(scope.row)" icon="el-icon-edit" plain>
@@ -70,17 +65,18 @@
           <el-form-item label="邮箱:" prop="email">
             <el-input v-model="form.email"></el-input>
           </el-form-item>
-          <!-- <el-form-item label="头像:" prop="avatar">
-            <span>
-              <img :src="form.avatar" alt="" style="width: 50px;height: 50px">
-            </span>
-          </el-form-item> -->
-          <el-form-item label="状态:" prop="flag">
+          <el-form-item label="用户分组:" prop="avatar">
+            <el-select v-model="form.groupId" class="filter-item" placeholder='请选择' style="width: 280px;">
+              <el-option v-for="item in groupList" :key="item.key" :label="item.groupName"
+                         :value="item.id"></el-option>
+            </el-select>
+          </el-form-item>
+          <!-- <el-form-item label="状态:" prop="flag">
             <el-select v-model="form.flag" class="filter-item" placeholder='请选择' style="width: 280px;">
               <el-option v-for="item in flagList" :key="item.key" :label="item.display_name"
                          :value="item.key"></el-option>
             </el-select>
-          </el-form-item>
+          </el-form-item> -->
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible = false"> {{ $t('table.cancel') }} </el-button>
@@ -93,6 +89,7 @@
 
 <script>
   import { getSysUserPage, saveSysUser, deleteSysUser } from '@/api/system/user'
+  import { getGroupList } from '@/api/comment/group'
 
   export default {
     data() {
@@ -109,6 +106,7 @@
           username: undefined
         },
         input: '',
+        groupList:[],
         form: {
           id: undefined, //主键ID
           username: undefined, //账号
@@ -136,15 +134,16 @@
               ],
               nickName: [
                   {required: true, message: '请输入你昵称', trigger: 'blur'},
-              ],
-              flag: [
-                  {required: true, message: '请选择状态', trigger: 'blur'},
               ]
+              // flag: [
+              //     {required: true, message: '请选择状态', trigger: 'blur'},
+              // ]
           }
       }
     },
     created() {
       this.getList()
+      this.getGroupList()
     },
     methods: {
       getList() {
@@ -153,6 +152,11 @@
           this.list = response.data.records
           this.total = response.data.total
           this.listLoading = false
+        })
+      },
+      getGroupList() {
+        getGroupList().then(response => {
+          this.groupList = response.data.records
         })
       },
       handleCreate() {
