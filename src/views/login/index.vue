@@ -39,43 +39,60 @@
         </span>
       </el-form-item>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">
+      <el-button :loading="loading" type="primary" style="width:100%;" @click.native.prevent="handleLogin">
         {{ $t('login.logIn') }}
       </el-button>
-
+      <a class="to_add_user" @click="handleCreate">没有账号？去注册</a>
       <div style="position:relative">
-      <div class="tips">
-      <span>{{ $t('login.username') }} : admin</span>
-      <span>{{ $t('login.password') }} : 123456</span>
+          <div class="tips">
+            <span>{{ $t('login.username') }} : admin</span>
+            <span>{{ $t('login.password') }} : 123456</span>
+          </div>
+          <div class="tips">
+            <span style="margin-right:18px;">{{ $t('login.username') }} : test</span>
+            <span>{{ $t('login.password') }} : 123456</span>
+          </div>
       </div>
-      <div class="tips">
-      <span style="margin-right:18px;">{{ $t('login.username') }} : test</span>
-      <span>{{ $t('login.password') }} : 123456</span>
-      </div>
-
-<!--      <el-button class="thirdparty-button" type="primary" @click="showDialog=true">{{ $t('login.thirdparty') }}</el-button>-->
-  </div>
     </el-form>
 
-    <el-dialog :title="$t('login.thirdparty')" :visible.sync="showDialog">
-    {{ $t('login.thirdpartyTips') }}
-    <br>
-    <br>
-    <br>
-    <social-sign />
-    </el-dialog>
+    <el-dialog title="注册账号" :visible.sync="dialogVisible" width="50%" @close="handleDialogClose">
+        <el-form ref="dataForm" :model="form" :rules="rules" label-width="90px" class="demo-ruleForm">
+          <el-form-item label="账号:" prop="username">
+            <el-input v-model="form.username"></el-input>
+          </el-form-item>
+          <el-form-item label="登录密码:" prop="pwd">
+            <el-input v-model="form.pwd"></el-input>
+          </el-form-item>
+          <el-form-item label="昵称:" prop="nickName">
+            <el-input v-model="form.nickName"></el-input>
+          </el-form-item>
+          <el-form-item label="性别:" prop="sex">
+            <el-select v-model="form.sex" class="filter-item" placeholder='请选择' style="width: 100%;">
+              <el-option v-for="item in sexList" :key="item.key" :label="item.display_name"
+                         :value="item.key"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="手机号码:" prop="phone">
+            <el-input v-model="form.phone"></el-input>
+          </el-form-item>
+          <el-form-item label="邮箱:" prop="email">
+            <el-input v-model="form.email"></el-input>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false"> 取消 </el-button>
+          <el-button type="primary" @click="submitForm"> 确认 </el-button>
+        </span>
+      </el-dialog>
   </div>
 </template>
 
 <script>
 
 import { validUsername } from '@/utils/validate'
-import LangSelect from '@/components/LangSelect'
-import SocialSign from './socialsignin'
-
+import {  saveSysUser } from '@/api/system/user'
 export default {
   name: 'Login',
-  components: { LangSelect, SocialSign },
   data() {
     const validateUsername = (rule, value, callback) => {
       if (!validUsername(value)) {
@@ -104,9 +121,34 @@ export default {
       loading: false,
       showDialog: false,
       redirect: undefined,
-      // openId: this.$route.query.openId,  //接受传过来的openId
-      // accessToken: this.$route.query.accessToken
-      timer: null  // 定时器名称
+      timer: null,  // 定时器名称
+      dialogVisible:false,
+      form: {
+        id: undefined, //主键ID
+        username: undefined, //账号
+        pwd: undefined, //登录密码
+        nickName: undefined, //昵称
+        sex: undefined, //性别 0:男 1:女
+        phone: undefined, //手机号码
+        email: undefined, //邮箱
+        avatar: undefined, //头像
+        groupId:2
+      },
+      sexList: [{ key: '0', display_name: '男' }, { key: '1', display_name: '女' }],
+      rules: {
+          username: [
+              {required: true, message: '请输入账号', trigger: 'blur'},
+          ],
+          pwd: [
+              { required: true,pattern: /^(\w){6,16}$/, message: '请设置6-16位字母、数字组合'}
+          ],
+          nickName: [
+              {required: true, message: '请输入你昵称', trigger: 'blur'},
+          ]
+          // flag: [
+          //     {required: true, message: '请选择状态', trigger: 'blur'},
+          // ]
+      }
     }
   },
   watch: {
@@ -192,24 +234,31 @@ export default {
             console.log('未登录!')
         }
     },
-      afterQRScan() {
-      // const hash = window.location.hash.slice(1)
-      // const hashObj = getQueryObject(hash)
-      // const originUrl = window.location.origin
-      // history.replaceState({}, '', originUrl)
-      // const codeMap = {
-      //   wechat: 'code',
-      //   tencent: 'code'
-      // }
-      // const codeName = hashObj[codeMap[this.auth_type]]
-      // if (!codeName) {
-      //   alert('第三方登录失败')
-      // } else {
-      //   this.$store.dispatch('LoginByThirdparty', codeName).then(() => {
-      //     this.$router.push({ path: '/' })
-      //   })
-      // }
-    }
+    handleCreate() {
+      this.dialogVisible = true
+    },
+     // 监听dialog关闭时的处理事件
+    handleDialogClose() {
+    },
+    submitForm() {
+      this.$refs.dataForm.validate(valid => {
+        if (valid) {
+          saveSysUser(this.form).then(response => {
+            if (response.code == 200) {
+              this.submitOk('恭喜您注册成功')
+              this.dialogVisible = false;
+              this.loginForm.username = this.form.username;
+              this.loginForm.password = this.form.pwd;
+              this.handleLogin();//去登陆
+            } else {
+              this.submitFail(response.message)
+            }
+          }).catch(err => {
+            console.log(err)
+          })
+        }
+      })
+    },
   }
 }
 </script>
@@ -223,7 +272,7 @@ export default {
   $cursor: #fff;
 
   @supports (-webkit-mask: none) and (not (cater-color: $cursor)) {
-    .login-container .el-input input{
+    .login-form .el-input input{
       color: $cursor;
       &::first-line {
         color: $light_gray;
@@ -232,7 +281,7 @@ export default {
   }
 
   /* reset element-ui css */
-  .login-container {
+  .login-form {
     .el-input {
       display: inline-block;
       height: 47px;
@@ -288,6 +337,13 @@ $light_gray:#eee;
         margin-right: 16px;
       }
     }
+  }
+  .to_add_user{
+    display: block;
+    margin: 20px 0 30px;
+    color: #fff;
+    text-align: right;
+    text-decoration: underline;;
   }
   .svg-container {
     padding: 6px 5px 6px 15px;

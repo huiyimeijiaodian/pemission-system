@@ -44,7 +44,6 @@
       <el-dialog :title="titleMap[dialogStatus]" :visible.sync="dialogVisible" width="40%" @close="handleDialogClose">
         <el-form ref="dataForm" :model="form" :rules="rules" label-width="80px" class="demo-ruleForm">
           <el-form-item label="账号:" prop="username">
-<!--            <el-input v-model="form.username" :disabled="dialogStatus!='create'"></el-input>-->
             <el-input v-model="form.username"></el-input>
           </el-form-item>
           <el-form-item label="登录密码:" prop="pwd">
@@ -54,7 +53,7 @@
             <el-input v-model="form.nickName"></el-input>
           </el-form-item>
           <el-form-item label="性别:" prop="sex">
-            <el-select v-model="form.sex" class="filter-item" placeholder='请选择' style="width: 280px;">
+            <el-select v-model="form.sex" class="filter-item" placeholder='请选择' style="width: 100%;">
               <el-option v-for="item in sexList" :key="item.key" :label="item.display_name"
                          :value="item.key"></el-option>
             </el-select>
@@ -71,12 +70,6 @@
                          :value="item.id"></el-option>
             </el-select>
           </el-form-item>
-          <!-- <el-form-item label="状态:" prop="flag">
-            <el-select v-model="form.flag" class="filter-item" placeholder='请选择' style="width: 280px;">
-              <el-option v-for="item in flagList" :key="item.key" :label="item.display_name"
-                         :value="item.key"></el-option>
-            </el-select>
-          </el-form-item> -->
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible = false"> {{ $t('table.cancel') }} </el-button>
@@ -125,20 +118,20 @@
           update: '编辑',
           create: '创建'
         },
-          rules: {
-              username: [
-                  {required: true, message: '请输入账号', trigger: 'blur'},
-              ],
-              pwd: [
-                  { pattern: /^(\w){6,16}$/, message: '请设置6-16位字母、数字组合'}
-              ],
-              nickName: [
-                  {required: true, message: '请输入你昵称', trigger: 'blur'},
-              ]
-              // flag: [
-              //     {required: true, message: '请选择状态', trigger: 'blur'},
-              // ]
-          }
+        rules: {
+            username: [
+                {required: true, message: '请输入账号', trigger: 'blur'},
+            ],
+            pwd: [
+                { pattern: /^(\w){6,16}$/, message: '请设置6-16位字母、数字组合'}
+            ],
+            nickName: [
+                {required: true, message: '请输入你昵称', trigger: 'blur'},
+            ]
+            // flag: [
+            //     {required: true, message: '请选择状态', trigger: 'blur'},
+            // ]
+        }
       }
     },
     created() {

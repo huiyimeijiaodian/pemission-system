@@ -26,6 +26,12 @@
                   <span v-for="item in roles" :key="item" style="display: inline-block;margin-right: 5px">{{ item
                     }}</span>
                 </td>
+                <td class="userinfo-lable">
+                  性别
+                </td>
+                <td class="userinfo-content">
+                  {{ sex==1?'女':'男' }}
+                </td>
               </tr>
               <tr class="userinfo-row">
                 <td class="userinfo-lable">
@@ -34,6 +40,12 @@
                 <td class="userinfo-content">
                   {{ name }}
                 </td>
+                <td class="userinfo-lable">
+                  手机
+                </td>
+                <td class="userinfo-content">
+                  {{ phone?phone:'无' }}
+                </td>
               </tr>
               <tr class="userinfo-row">
                 <td class="userinfo-lable">
@@ -41,6 +53,12 @@
                 </td>
                 <td class="userinfo-content">
                   {{ introduction }}
+                </td>
+                <td class="userinfo-lable">
+                  邮箱
+                </td>
+                <td class="userinfo-content">
+                  {{ email?email:'无' }}
                 </td>
               </tr>
             </table>
@@ -60,6 +78,22 @@
         </el-form-item>
         <el-form-item label="昵称:" prop="nickName">
           <el-input v-model="form.nickName"></el-input>
+        </el-form-item>
+        <el-form-item label="性别:" prop="sex">
+          <el-select v-model="form.sex" placeholder='请选择' @change="sexOnChange" style="width: 100%;">
+            <el-option 
+              v-for="item in sexList" 
+              :key="item.value" 
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="手机:" prop="phone">
+          <el-input v-model="form.phone"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱:" prop="email">
+          <el-input v-model="form.email"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -89,7 +123,10 @@
           id: undefined, //主键ID
           username: undefined, //账号
           pwd: undefined, //登录密码
-          nickName: undefined //昵称
+          nickName: undefined, //昵称
+          phone: undefined, //手机
+          email: undefined, //邮箱
+          sex: '', //性别
         },
         dialogVisible: false,
         dialogStatus: '',
@@ -97,7 +134,23 @@
           update: '修改个人信息',
           create: '创建'
         },
+        sexList:[
+          {value:'0',label:'男'},
+          {value:'1',label:'女'}
+        ]
       }
+    },
+    computed: {
+      ...mapGetters([
+        'id',
+        'name',
+        'avatar',
+        'roles',
+        'introduction',
+        'phone',
+        'email',
+        'sex'
+      ])
     },
     created() {
     },
@@ -107,8 +160,14 @@
         this.form.id = this.id
         this.form.username = this.name
         this.form.nickName = this.introduction
+        this.form.phone = this.phone
+        this.form.email = this.email
+        this.form.sex = this.sex
         this.dialogStatus = 'update'
         this.dialogVisible = true
+      },
+      sexOnChange(item){
+        this.$forceUpdate();
       },
       submitForm() {
         this.$refs.dataForm.validate(valid => {
@@ -116,9 +175,12 @@
             updatePersonalInfo(this.form).then(response => {
               if (response.code == 200) {
                 this.submitOk(response.message)
-                this.$store.commit('SET_INTRODUCTION',this.form.nickName);
-                this.$store.commit('SET_NAME',this.form.username);
-                this.dialogVisible = false
+                // this.$store.commit('SET_INTRODUCTION',this.form.nickName);
+                // this.$store.commit('SET_NAME',this.form.username);
+                setTimeout(()=>{
+                  this.dialogVisible = false
+                  window.location.reload()
+                },100)
               } else {
                 this.submitFail(response.message)
               }
@@ -135,15 +197,6 @@
         }
       }
     },
-    computed: {
-      ...mapGetters([
-        'id',
-        'name',
-        'avatar',
-        'roles',
-        'introduction'
-      ])
-    }
   }
 </script>
 
